@@ -1845,8 +1845,9 @@ static void app_handle_send_alarm (
    uint8_t * alarm_payload)
 {
    static app_demo_state_t state = APP_DEMO_STATE_ALARM_SEND;
+   //static app_demo_state_t state = APP_DEMO_STATE_DIAG_STD_ADD;
    uint16_t slot = 0;
-   bool found_inputslot = false;
+   bool found_inputsubslot = false;
    uint16_t subslot_ix = 0;
    const app_subslot_t * p_subslot = NULL;
    pnet_pnio_status_t pnio_status = {0};
@@ -1858,25 +1859,27 @@ static void app_handle_send_alarm (
       .ch_grouping = PNET_DIAG_CH_INDIVIDUAL_CHANNEL,
       .ch_direction = APP_DIAG_CHANNEL_DIRECTION};
 
-   /* Look for first input slot */
-   while (!found_inputslot && (slot < PNET_MAX_SLOTS))
+   pnet_show(net, 0x0200);
+
+   /* Loop though slots and subslots to find first input subslot */
+   while (!found_inputsubslot && (slot < PNET_MAX_SLOTS))
    {
-      for (subslot_ix = 0; !found_inputslot && (subslot_ix < PNET_MAX_SUBSLOTS);
+      for (subslot_ix = 0; !found_inputsubslot && (subslot_ix < PNET_MAX_SUBSLOTS);
            subslot_ix++)
       {
          p_subslot = &p_appdata->main_api.slots[slot].subslots[subslot_ix];
          if (app_subslot_is_input (p_subslot))
          {
-            found_inputslot = true;
+            found_inputsubslot = true;
             break;
          }
       }
-      if (!found_inputslot)
+      if (!found_inputsubslot)
       {
          slot++;
       }
    }
-   if (!found_inputslot)
+   if (!found_inputsubslot)
    {
       printf ("Did not find any input module in the slots. Skipping.\n");
       return;
@@ -1959,6 +1962,17 @@ static void app_handle_send_alarm (
          APP_DIAG_CHANNEL_EXTENDED_ERRORTYPE,
          APP_DIAG_CHANNEL_ADDVALUE_A,
          APP_DIAG_CHANNEL_QUAL_SEVERITY);
+
+      diag_source.slot = 2;
+      (void)pnet_diag_std_add (
+         net,
+         &diag_source,
+         APP_DIAG_CHANNEL_NUMBER_OF_BITS,
+         APP_DIAG_CHANNEL_SEVERITY,
+         0x0006,
+         APP_DIAG_CHANNEL_EXTENDED_ERRORTYPE,
+         APP_DIAG_CHANNEL_ADDVALUE_A,
+         APP_DIAG_CHANNEL_QUAL_SEVERITY);
       break;
 
    case APP_DEMO_STATE_DIAG_STD_UPDATE:
@@ -1985,6 +1999,12 @@ static void app_handle_send_alarm (
          net,
          &diag_source,
          APP_DIAG_CHANNEL_ERRORTYPE,
+         APP_DIAG_CHANNEL_EXTENDED_ERRORTYPE);
+      diag_source.slot = 2;
+      pnet_diag_std_remove (
+         net,
+         &diag_source,
+         0x0006,
          APP_DIAG_CHANNEL_EXTENDED_ERRORTYPE);
       break;
 
@@ -2071,10 +2091,13 @@ static void app_handle_send_alarm (
       break;
    }
 
+   pnet_show(net, 0x0200);
+
    switch (state)
    {
    case APP_DEMO_STATE_ALARM_SEND:
-      state = APP_DEMO_STATE_CYCLIC_REDUNDANT;
+      state = APP_DEMO_STATE_DIAG_STD_ADD;
+      //state = APP_DEMO_STATE_CYCLIC_REDUNDANT;
       break;
    case APP_DEMO_STATE_CYCLIC_REDUNDANT:
       state = APP_DEMO_STATE_CYCLIC_NORMAL;
@@ -2083,7 +2106,8 @@ static void app_handle_send_alarm (
       state = APP_DEMO_STATE_DIAG_STD_ADD;
       break;
    case APP_DEMO_STATE_DIAG_STD_ADD:
-      state = APP_DEMO_STATE_DIAG_STD_UPDATE;
+      //state = APP_DEMO_STATE_DIAG_STD_UPDATE;
+      state = APP_DEMO_STATE_DIAG_STD_REMOVE;
       break;
    case APP_DEMO_STATE_DIAG_STD_UPDATE:
       state = APP_DEMO_STATE_DIAG_USI_ADD;
@@ -2098,7 +2122,8 @@ static void app_handle_send_alarm (
       state = APP_DEMO_STATE_DIAG_STD_REMOVE;
       break;
    case APP_DEMO_STATE_DIAG_STD_REMOVE:
-      state = APP_DEMO_STATE_LOGBOOK_ENTRY;
+      //state = APP_DEMO_STATE_LOGBOOK_ENTRY;
+      state = APP_DEMO_STATE_ALARM_SEND;
       break;
    case APP_DEMO_STATE_LOGBOOK_ENTRY:
       state = APP_DEMO_STATE_ABORT_AR;

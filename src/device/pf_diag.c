@@ -819,6 +819,7 @@ int pf_diag_remove (
                    * the specifier PNET_DIAG_CH_SPEC_ALL_DISAPPEARS is used. */
                   /* Overwrite the item to remove with correct cr_properties for
                    * this diag message. */
+                  /* Why change USI? */
                   p_item->usi = PF_USI_EXTENDED_CHANNEL_DIAGNOSIS;
                   PF_DIAG_CH_PROP_MAINT_SET (
                      p_item->fmt.std.ch_properties,

@@ -2535,12 +2535,12 @@ void pf_put_log_book_data (
  *  - Extended channel diagnosis (standard format)
  *  - Qualified channel diagnosis (standard format)
  *
- * @param is_big_endian    In:   true if buffer is big-endian.
- * @param p_item           In:   The diag item to insert.
- * @param insert_usi       In:   Insert USI field if true.
- * @param res_len          In:   Size of destination buffer.
- * @param p_bytes          Out:  Destination buffer.
- * @param p_pos            InOut:Position in destination buffer.
+ * @param is_big_endian    In:    true if buffer is big-endian.
+ * @param p_item           In:    The diag item to insert.
+ * @param insert_usi       In:    Insert USI field if true.
+ * @param res_len          In:    Size of destination buffer.
+ * @param p_bytes          Out:   Destination buffer.
+ * @param p_pos            InOut: Position in destination buffer.
  */
 static void pf_put_diag_item (
    bool is_big_endian,
@@ -2550,14 +2550,17 @@ static void pf_put_diag_item (
    uint8_t * p_bytes,
    uint16_t * p_pos)
 {
+   printf(">>>>>>>>>>>>>> pf_put_diag_item()           usi %u\n", p_item->usi);
    if (insert_usi == true)
    {
+      printf(">>insert usi\n");
       pf_put_uint16 (is_big_endian, p_item->usi, res_len, p_bytes, p_pos);
    }
 
    switch (p_item->usi)
    {
    case PF_USI_CHANNEL_DIAGNOSIS:
+      printf(">>Insert channel diagnosis \n");
       /* Insert std format diagnosis */
       pf_put_uint16 (
          is_big_endian,
@@ -2579,6 +2582,7 @@ static void pf_put_diag_item (
          p_pos);
       break;
    case PF_USI_EXTENDED_CHANNEL_DIAGNOSIS:
+     printf(">>Insert extended diagnosis   channel + properties, error type, ext, add value\n");
       /* Insert std format diagnosis */
       pf_put_uint16 (
          is_big_endian,
@@ -2613,6 +2617,7 @@ static void pf_put_diag_item (
          p_pos);
       break;
    case PF_USI_QUALIFIED_CHANNEL_DIAGNOSIS:
+      printf(">>Insert qualified diagnosis \n");
       /* Insert std format diagnosis */
       pf_put_uint16 (
          is_big_endian,
@@ -2654,6 +2659,7 @@ static void pf_put_diag_item (
          p_pos);
       break;
    default:
+      printf(">>Insert manufacturer diagnosis \n");
       pf_put_mem (
          p_item->fmt.usi.manuf_data,
          sizeof (p_item->fmt.usi.manuf_data),
@@ -2691,6 +2697,8 @@ static void pf_put_diag_list (
    uint8_t * p_bytes,
    uint16_t * p_pos)
 {
+   printf(">>>>>>>>>>>>>> pf_put_diag_list()     subslot %u\n", subslot_nbr);
+
    uint16_t ch_properties = 0;
    pf_diag_item_t * p_item = NULL;
    bool insert;
@@ -2699,6 +2707,7 @@ static void pf_put_diag_list (
    pf_cmdev_get_diag_item (net, list_head, &p_item);
    if (p_item != NULL)
    {
+      printf(">>Insert slot, subslot, channel\n");
       pf_put_uint16 (is_big_endian, slot_nbr, res_len, p_bytes, p_pos);
       pf_put_uint16 (is_big_endian, subslot_nbr, res_len, p_bytes, p_pos);
       pf_put_uint16 (
@@ -2712,10 +2721,12 @@ static void pf_put_diag_list (
        * The list only contains APPEARS, so it can be hardcoded here.
        * ToDo: More info into ch_properties here!
        */
+      printf(">>Insert ch properties\n");
       PF_DIAG_CH_PROP_SPEC_SET (ch_properties, PF_DIAG_CH_PROP_SPEC_APPEARS);
       pf_put_uint16 (is_big_endian, ch_properties, res_len, p_bytes, p_pos);
 
       /* Todo: order diagitems by usi */
+      printf(">>Insert usi\n");
       pf_put_uint16 (is_big_endian, p_item->usi, res_len, p_bytes, p_pos);
 
       while (p_item != NULL)
@@ -2810,6 +2821,8 @@ static void pf_put_diag_slot (
    uint16_t ix;
    const pf_subslot_t * p_subslot;
 
+   printf(">>>>>>>>>>>>>> pf_put_diag_slot()   slot %u\n", p_slot->slot_nbr);
+
    /* Include at least API ID information */
    for (ix = 0; ix < NELEMENTS (p_slot->subslots); ix++)
    {
@@ -2888,6 +2901,8 @@ static void pf_put_diag_api (
 {
    uint16_t ix;
    const pf_slot_t * p_slot;
+
+   printf(">>>>>>>>>>>>>> pf_put_diag_api()\n");
 
    /* Include at least API ID information */
    for (ix = 0; ix < NELEMENTS (p_api->slots); ix++)
@@ -2970,6 +2985,7 @@ static void pf_put_diag_device (
 {
    uint16_t ix;
    const pf_api_t * p_api;
+   printf(">>>>>>>>>>>>>> pf_put_diag_device()\n");
 
    /* Include at least API ID information */
    for (ix = 0; ix < NELEMENTS (p_device->apis); ix++)
@@ -3033,12 +3049,15 @@ void pf_put_diag_data (
    uint8_t * p_bytes,
    uint16_t * p_pos)
 {
+   printf(">>>>>>>>>>>>>> pf_put_diag_data()\n");
+
    uint16_t block_pos = *p_pos;
    uint16_t block_len = 0;
    uint16_t data_pos;
    pf_device_t * p_device = NULL;
 
    /* Insert block header for the output block */
+   printf(">>Insert diagnosis data header\n");
    pf_put_block_header (
       is_big_endian,
       PF_BT_DIAGNOSIS_DATA,
@@ -3049,6 +3068,7 @@ void pf_put_diag_data (
       p_bytes,
       p_pos);
 
+   printf(">>Insert API ID\n");
    pf_put_uint32 (is_big_endian, api_id, res_len, p_bytes, p_pos);
 
    data_pos = *p_pos;
