@@ -827,6 +827,7 @@ size_t pf_lldp_construct_frame (pnet_t * net, int loc_port_num, uint8_t buf[])
    pnet_ethaddr_t device_mac_address;
    pf_lldp_link_status_t link_status;
    pf_lldp_chassis_id_t chassis_id;
+   pf_lldp_management_address_t man_address;
    const pnet_port_cfg_t * p_port_cfg =
       pf_lldp_get_port_config (net, loc_port_num);
 
@@ -866,7 +867,7 @@ size_t pf_lldp_construct_frame (pnet_t * net, int loc_port_num, uint8_t buf[])
 
    pos = 0;
 
-   pf_lldp_add_ethernet_header (buf, &pos, lldp_dst_addr, p_port_cfg->port_addr);
+   pf_lldp_add_ethernet_header (buf, &pos, lldp_dst_addr, p_port_cfg->phy_port.eth_addr);
 
    /* Add mandatory parts */
    pf_lldp_add_chassis_id_tlv (&chassis_id, buf, &pos);
