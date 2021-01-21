@@ -298,6 +298,7 @@ int pf_cmina_set_default_cfg (pnet_t * net, uint16_t reset_mode)
           * in I&M 1.
           */
          pf_file_clear (p_file_directory, PF_FILENAME_SYSLOCATION);
+         pf_file_clear (p_file_directory, PF_FILENAME_SYSCONTACT);
       }
 
       if (reset_mode == 2 || reset_mode >= 3)
