@@ -1185,7 +1185,7 @@ typedef struct pnet_netif
 typedef struct pnet_port_cfg
 {
    pnet_netif_t phy_port;
-   char port_id[PNET_LLDP_PORT_ID_MAX_SIZE]; /**< Terminated string */
+   char port_id[PNET_PORT_ID_MAX_SIZE]; /**< Terminated string */
    uint16_t rtclass_2_status;
    uint16_t rtclass_3_status;
 } pnet_port_cfg_t;

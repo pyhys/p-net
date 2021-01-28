@@ -32,6 +32,8 @@ void pf_port_init (pnet_t * net)
    pf_port_iterator_t port_iterator;
    pf_port_t * p_port_data = NULL;
 
+   net->if_ctl.mode.name_of_device = PF_LLDP_NAME_OF_DEVICE_MODE_STANDARD;
+
    pf_port_init_iterator_over_ports (net, &port_iterator);
    port = pf_port_get_next (&port_iterator);
 
@@ -89,13 +91,26 @@ int pf_port_get_next (pf_port_iterator_t * p_iterator)
 pf_port_t * pf_port_get_state (pnet_t * net, int loc_port_num)
 {
    CC_ASSERT (loc_port_num > 0 && loc_port_num <= PNET_MAX_PORT);
-   return &net->port[loc_port_num - 1];
+   return &net->if_ctl.port[loc_port_num - 1];
 }
 
 const pnet_port_cfg_t * pf_port_get_config (pnet_t * net, int loc_port_num)
 {
    CC_ASSERT (loc_port_num > 0 && loc_port_num <= PNET_MAX_PORT);
    return &net->fspm_cfg.if_cfg.ports[loc_port_num - 1];
+}
+
+pf_lldp_name_of_device_mode_t pf_port_get_lldp_name_device_mode (
+   const pnet_t * net)
+{
+   if (net->if_ctl.mode.name_of_device == 1)
+   {
+      return PF_LLDP_NAME_OF_DEVICE_MODE_STANDARD;
+   }
+   else
+   {
+      return PF_LLDP_NAME_OF_DEVICE_MODE_LEGACY;
+   }
 }
 
 uint16_t pf_port_loc_port_num_to_dap_subslot (int loc_port_num)
@@ -132,7 +147,7 @@ int pf_port_get_port_number (pnet_t * net, pnal_eth_handle_t * eth_handle)
 
    for (loc_port_num = 1; loc_port_num <= PNET_MAX_PORT; loc_port_num++)
    {
-      if (net->port[loc_port_num - 1].eth_handle == eth_handle)
+      if (net->if_ctl.port[loc_port_num - 1].eth_handle == eth_handle)
       {
          return loc_port_num;
       }

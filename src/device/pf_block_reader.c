@@ -1012,3 +1012,19 @@ void pf_get_port_data_adjust_peer_to_peer_boundary (
 
    p_boundary->adjust_properties = pf_get_uint16 (p_info, p_pos);
 }
+
+void pf_get_interface_adjust (
+   pf_get_info_t * p_info,
+   uint16_t * p_pos,
+   pf_multiple_interface_mode_t * mode)
+{
+   uint8_t dummy[2];
+   uint32_t temp;
+
+   pf_get_mem (p_info, p_pos, 2, dummy); /* Padding */
+
+   memset (mode, 0, sizeof (*mode));
+
+   temp = pf_get_uint32 (p_info, p_pos);
+   mode->name_of_device = pf_get_bits (temp, 0, 1);
+}

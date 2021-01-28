@@ -2394,9 +2394,39 @@ typedef struct pf_port_data_adjust
    pf_block_header_t block_header;
 } pf_port_data_adjust_t;
 
+/*
+ * PN-AL-protocol (Mar20) 5.2.12.1.
+ */
+typedef struct pf_multiple_interface_mode
+{
+   uint32_t name_of_device : 1;
+   uint32_t reserved_1 : 15; /* Shall be set to 0 */
+   uint32_t reserved_2 : 16; /* Shall be set to 0 */
+} pf_multiple_interface_mode_t;
+
+/*
+ * 0x00 The field LLDPChassis contains the NameOfStation and
+ *      the field PortID of LLDP contains the name of the port.
+ * 0x01 The field LLDPChassis contains the NameOfDevice
+ *      and is defined by local means. The field PortID of LLDP 
+ *      contains the name of the port and the NameOfStation.
+*
+ *                   Legacy LLDP mode       Standard LLDP mode
+ * Version           v2.4 0x00              v2.4 0x01
+ * NameOfStation     dut                    dut
+ * NameOfPort        port-001               port-001
+ * LLDP_PortID       port-001               port-001.dut
+ * LLDP_ChassisID    dut (or mac)           system description
+ */
+typedef enum
+{
+   PF_LLDP_NAME_OF_DEVICE_MODE_LEGACY = 0,
+   PF_LLDP_NAME_OF_DEVICE_MODE_STANDARD = 1
+} pf_lldp_name_of_device_mode_t;
+
 /**
  * Substitution name: PeerToPeerBoundary
- * Table 722
+ * PN-AL-protocol (Mar20) Table 722
  */
 typedef struct pf_peer_to_peer_boundary
 {
@@ -2564,6 +2594,18 @@ typedef struct pf_lldp_station_name
    char string[PNET_STATION_NAME_MAX_SIZE]; /** Terminated string */
    size_t len;
 } pf_lldp_station_name_t;
+
+
+/**
+ * LLDP Port Name
+ * In standard name of device mode this is first part of Port ID
+ * In legacy mode Port ID and Port Name are the same.
+ */
+typedef struct pf_lldp_port_name
+{
+   char string[PNET_PORT_ID_MAX_SIZE]; /** Terminated string */
+   size_t len;
+} pf_lldp_port_name_t;
 
 /**
  * Measured signal delays in nanoseconds
@@ -2752,7 +2794,11 @@ struct pnet
     */
    os_mutex_t * lldp_mutex;
 
-   pf_port_t port[PNET_MAX_PORT];
+   struct
+   {
+      pf_multiple_interface_mode_t mode;
+      pf_port_t port[PNET_MAX_PORT];
+   } if_ctl;
 };
 
 /**

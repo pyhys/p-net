@@ -151,6 +151,15 @@ bool pf_port_is_valid (pnet_t * net, int loc_port_num);
  */
 int pf_port_get_port_number (pnet_t * net, pnal_eth_handle_t * eth_handle);
 
+/**
+ * Get name of device mode
+ *
+ * @param net              In:    The p-net stack instance
+ * @return Name of device mode
+ */
+pf_lldp_name_of_device_mode_t pf_port_get_lldp_name_device_mode (
+   const pnet_t * net);
+
 #ifdef __cplusplus
 }
 #endif
