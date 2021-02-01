@@ -97,6 +97,7 @@ int pnal_save_file (
 
    /* Close file */
    fclose (outputfile);
+   sync();
 
    return ret;
 }
@@ -105,6 +106,7 @@ void pnal_clear_file (const char * fullpath)
 {
    LOG_DEBUG (PF_PNAL_LOG, "PNAL(%d): Clearing file %s\n", __LINE__, fullpath);
    (void)remove (fullpath);
+   sync();
 }
 
 int pnal_load_file (
@@ -458,16 +460,19 @@ int pnal_get_macaddress (const char * interface_name, pnal_ethaddr_t * mac_addr)
 pnal_ipaddr_t pnal_get_ip_address (const char * interface_name)
 {
    int fd;
+   int res;
    struct ifreq ifr;
    pnal_ipaddr_t ip;
 
    fd = socket (AF_INET, SOCK_DGRAM, 0);
    ifr.ifr_addr.sa_family = AF_INET;
    strncpy (ifr.ifr_name, interface_name, IFNAMSIZ - 1);
-   ioctl (fd, SIOCGIFADDR, &ifr);
+
+   res = ioctl (fd, SIOCGIFADDR, &ifr);
    ip = ntohl (((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr);
    close (fd);
-
+   if (res)
+       ip = 0;
    return ip;
 }
 
@@ -476,15 +481,17 @@ pnal_ipaddr_t pnal_get_netmask (const char * interface_name)
    int fd;
    struct ifreq ifr;
    pnal_ipaddr_t netmask;
+   int res;
 
    fd = socket (AF_INET, SOCK_DGRAM, 0);
 
    ifr.ifr_addr.sa_family = AF_INET;
    strncpy (ifr.ifr_name, interface_name, IFNAMSIZ - 1);
-   ioctl (fd, SIOCGIFNETMASK, &ifr);
+   res = ioctl (fd, SIOCGIFNETMASK, &ifr);
    netmask = ntohl (((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr);
    close (fd);
-
+   if (res)
+	   netmask = 0;
    return netmask;
 }
 
@@ -496,8 +503,10 @@ pnal_ipaddr_t pnal_get_gateway (const char * interface_name)
    pnal_ipaddr_t gateway;
 
    ip = pnal_get_ip_address (interface_name);
-   gateway = (ip & 0xFFFFFF00) | 0x00000001;
-
+   if (ip)
+	   gateway = (ip & 0xFFFFFF00) | 0x00000001;
+   else
+	   gateway = 0;
    return gateway;
 }
 
