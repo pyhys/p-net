@@ -1396,7 +1396,7 @@ int app_pnet_cfg_init_default (pnet_cfg_t * stack_config)
    {
       snprintf (
          stack_config->if_cfg.ports[i].port_name,
-         PNET_LLDP_PORT_ID_MAX_SIZE,
+         PNET_PORT_NAME_MAX_SIZE,
          "port-%03d",
          i + 1);
       stack_config->if_cfg.ports[i].rtclass_2_status = 0;
@@ -1579,13 +1579,13 @@ int app_pnet_cfg_init_netifs (
    netmask = pnal_get_netmask (if_list.netif[0].name);
    gateway = pnal_get_gateway (if_list.netif[0].name);
 
-   if (gateway == IP_INVALID)
-   {
-      printf (
-         "Error: Invalid gateway IP address for Ethernet interface: %s\n",
-         if_list.netif[0].name);
-      return -1;
-   }
+   // if (gateway == IP_INVALID)
+   // {
+   //    printf (
+   //       "Error: Invalid gateway IP address for Ethernet interface: %s\n",
+   //       if_list.netif[0].name);
+   //    return -1;
+   // }
 
    if (verbosity > 0)
    {
