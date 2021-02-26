@@ -81,6 +81,23 @@ void pf_set_error (
    uint8_t code_2);
 
 /**
+ * Insert detailed error information into the result structure (of a session).
+ * Does not overwrite existing error information.
+ *
+ * @param p_stat           Out:  The result structure.
+ * @param code             In:   The error_code.
+ * @param decode           In:   The error_decode.
+ * @param code_1           In:   The error_code_1.
+ * @param code_2           In:   The error_code_2.
+ */
+void pf_set_error_if_not_already_set (
+   pnet_result_t * p_stat,
+   uint8_t code,
+   uint8_t decode,
+   uint8_t code_1,
+   uint8_t code_2);
+
+/**
  * Handle CMDEV events.
  *
  * For an ABORT event (given some conditions) the related sessions and the AR
