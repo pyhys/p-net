@@ -176,6 +176,7 @@ static const pf_dcp_opt_sub_t device_options[] = {
  * @param current_time     In:    The current system time, in microseconds,
  *                                when the scheduler is started to execute
  *                                stored tasks.
+ *                                Not used here.
  */
 static void pf_dcp_responder (pnet_t * net, void * arg, uint32_t current_time)
 {
@@ -1020,8 +1021,9 @@ static int pf_dcp_get_set (
          {
             LOG_DEBUG (
                PF_DCP_LOG,
-               "DCP(%d): Incoming DCP Set request\n",
-               __LINE__);
+               "DCP(%d): Incoming DCP Set request. Xid: %" PRIu32 "\n",
+               __LINE__,
+               p_src_dcphdr->xid);
             p_src_block_hdr = (pf_dcp_block_hdr_t *)&p_src[src_pos];
             src_pos += sizeof (*p_src_block_hdr); /* Point to the block value */
             src_block_len = ntohs (p_src_block_hdr->block_length);
@@ -1064,8 +1066,9 @@ static int pf_dcp_get_set (
          {
             LOG_DEBUG (
                PF_DCP_LOG,
-               "DCP(%d): Incoming DCP Get request\n",
-               __LINE__);
+               "DCP(%d): Incoming DCP Get request. Xid: %" PRIu32 "\n",
+               __LINE__,
+               p_src_dcphdr->xid);
             while (src_dcplen >=
                    (src_pos + sizeof (uint8_t) + sizeof (uint8_t)))
             {
@@ -1089,9 +1092,10 @@ static int pf_dcp_get_set (
          {
             LOG_ERROR (
                PF_DCP_LOG,
-               "DCP(%d): Unknown DCP service id %u\n",
+               "DCP(%d): Unknown DCP service id %u. Xid: %" PRIu32 "\n",
                __LINE__,
-               (unsigned)p_src_dcphdr->service_id);
+               (unsigned)p_src_dcphdr->service_id,
+               p_src_dcphdr->xid);
             p_dst_dcphdr->service_type = PF_DCP_SERVICE_TYPE_NOT_SUPPORTED;
          }
 
@@ -1912,14 +1916,15 @@ static int pf_dcp_identify_req (
          LOG_INFO (
             PF_DCP_LOG,
             "DCP(%d): Responding to incoming DCP identify request. All: %d "
-            "StationName: %.*s Alias: %.*s  Delay %" PRIu32 " us.\n",
+            "StationName: %.*s Alias: %.*s  Delay %" PRIu32 " us. Xid: %" PRIu32 "\n",
             __LINE__,
             identify_all,
             stationname_len,
             &p_src[stationname_position], /* Not terminated */
             alias_len,
             &p_src[alias_position], /* Not terminated */
-            response_delay);
+            response_delay,
+            p_src_dcphdr->xid);
 #endif
 
          pf_scheduler_add (
@@ -1936,13 +1941,14 @@ static int pf_dcp_identify_req (
          LOG_INFO (
             PF_DCP_LOG,
             "DCP(%d): No match for incoming DCP identify request. All: %d "
-            "StationName: %.*s Alias: %.*s \n",
+            "StationName: %.*s Alias: %.*s Xid: %" PRIu32 "\n",
             __LINE__,
             identify_all,
             stationname_len,
             &p_src[stationname_position], /* Not terminated */
             alias_len,
-            &p_src[alias_position] /* Not terminated */
+            &p_src[alias_position], /* Not terminated */
+            p_src_dcphdr->xid
          );
 #endif
          pnal_buf_free (p_rsp);
