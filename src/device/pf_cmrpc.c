@@ -226,16 +226,16 @@ static const char * pf_ar_type_to_string (pf_ar_type_values_t type)
    switch (type)
    {
    case PF_ART_IOCAR_SINGLE:
-      s = "PF_ART_IOCAR_SINGLE";
+      s = "Controller AR";
       break;
    case PF_ART_IOSAR:
-      s = "PF_ART_IOSAR";
+      s = "Supervisor AR";
       break;
    case PF_ART_IOCAR_SINGLE_RTC_3:
-      s = "PF_ART_IOCAR_SINGLE_RTC_3";
+      s = "RTC_3 AR";
       break;
    case PF_ART_IOCAR_SR:
-      s = "PF_ART_IOCAR_SR";
+      s = "AR Set";
       break;
    }
 
@@ -1185,10 +1185,14 @@ static int pf_cmrpc_rm_connect_interpret_ind (
 
                   LOG_DEBUG (
                      PF_RPC_LOG,
-                     "CMRPC(%d): Requested start up mode: \"%s\" Initiator "
+                     "CMRPC(%d): AR type: \"%s\" Device access: %u Supervisor "
+                     "takeover: %u Requested start up mode: \"%s\" Initiator "
                      "station name: \"%s\" UDP port: 0x%04x Timeout: "
                      "%u x 100 ms\n",
                      __LINE__,
+                     pf_ar_type_to_string (p_ar->ar_param.ar_type),
+                     p_ar->ar_param.ar_properties.device_access,
+                     p_ar->ar_param.ar_properties.supervisor_takeover_allowed,
                      p_ar->ar_param.ar_properties.startup_mode ? "Advanced"
                                                                : "Legacy",
                      p_ar->ar_param.cm_initiator_station_name,
@@ -1858,7 +1862,7 @@ static int pf_cmrpc_rm_connect_ind (
       {
          LOG_ERROR (
             PF_RPC_LOG,
-            "CMRPC(%d): Connect interpreter error\n",
+            "CMRPC(%d): Failed to parse incoming connect request\n",
             __LINE__);
          /* Invalid - ret already set */
       }
@@ -1866,7 +1870,7 @@ static int pf_cmrpc_rm_connect_ind (
    else
    {
       /* unavailable */
-      LOG_ERROR (PF_RPC_LOG, "CMRPC(%d): Out of resources (AR)\n", __LINE__);
+      LOG_ERROR (PF_RPC_LOG, "CMRPC(%d): Out of AR resources (AR)\n", __LINE__);
       pf_set_error (
          &p_sess->rpc_result,
          PNET_ERROR_CODE_CONNECT,
@@ -1878,9 +1882,8 @@ static int pf_cmrpc_rm_connect_ind (
    /* Create Connect response */
    LOG_DEBUG (
       PF_RPC_LOG,
-      "CMRPC(%d): Create CONNECT response: ret = %d   error_code=%" PRIu8
-      "  error_decode=%" PRIu8 "  error_code_1=%" PRIu8 "  error_code_2=%" PRIu8
-      "\n",
+      "CMRPC(%d): Create CONNECT response: ret = %d   error: 0x%02X 0x%02X "
+      "0x%02X 0x%02X\n",
       __LINE__,
       ret,
       p_sess->rpc_result.pnio_status.error_code,
