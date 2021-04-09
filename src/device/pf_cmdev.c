@@ -1725,6 +1725,7 @@ static int pf_cmdev_check_ar_param (pf_ar_t * p_ar, pnet_result_t * p_stat)
 
    if (pf_cmdev_check_ar_type (p_ar->ar_param.ar_type) != 0)
    {
+      LOG_INFO (PNET_LOG, "CMDEV(%d): Wrong incoming AR type\n", __LINE__);
       pf_set_error (
          p_stat,
          PNET_ERROR_CODE_CONNECT,
@@ -3431,7 +3432,7 @@ static int pf_cmdev_check_iocr_param (
  *
  * @param net              InOut: The p-net stack instance
  * @param p_exp_api        In:    The expected API instance.
- * @param p_exp_mod        In:   The expected sub-module instance.
+ * @param p_exp_mod        In:    The expected sub-module instance.
  * @param p_cfg_api        InOut: The configured API instance.
  * @param p_cfg_slot       InOut: The configured module instance.
  * @param p_stat           Out:   Detailed error information if return != 0.
@@ -3504,7 +3505,15 @@ static int pf_cmdev_exp_submodule_configure (
       {
          if (p_exp_sub->submodule_ident_number != p_cfg_sub->submodule_ident_number)
          {
-            LOG_DEBUG (PNET_LOG, "CMDEV(%d): ret = %d\n", __LINE__, ret);
+            LOG_DEBUG (
+               PNET_LOG,
+               "CMDEV(%d): Substitute mode for slot %u subslot 0x%04x Sub"
+               "module expected 0x%08" PRIx32 " configured 0x%08" PRIx32 "\n",
+               __LINE__,
+               p_exp_mod->slot_number,
+               p_exp_sub->subslot_number,
+               p_exp_sub->submodule_ident_number,
+               p_cfg_sub->submodule_ident_number);
 
             p_cfg_sub->submodule_state.ident_info = PF_SUBMOD_PLUG_SUBSTITUTE;
          }
