@@ -36,6 +36,37 @@ void pf_cmsu_init (pnet_t * net, pf_ar_t * p_ar)
    p_ar->cmsu_state = PF_CMSU_STATE_IDLE;
 }
 
+
+/**
+ * @internal
+ * Return a string representation of the CMSU state.
+ * @param state            In:   The CMSU state
+ * @return  A string representing the CMSU state.
+ */
+static const char * pf_cmsu_state_to_string (pf_cmsu_state_values_t state)
+{
+   const char * s = "<unknown>";
+
+   switch (state)
+   {
+   case PF_CMSU_STATE_IDLE:
+      s = "PF_CMSU_STATE_IDLE";
+      break;
+   case PF_CMSU_STATE_STARTUP:
+      s = "PF_CMSU_STATE_STARTUP";
+      break;
+   case PF_CMSU_STATE_RUN:
+      s = "PF_CMSU_STATE_RUN";
+      break;
+   case PF_CMSU_STATE_ABORT:
+      s = "PF_CMSU_STATE_ABORT";
+      break;
+   }
+
+   return s;
+}
+
+
 /**
  * @internal
  * Handle state changes in the CMSU component.
@@ -49,6 +80,14 @@ static int pf_cmsu_set_state (
    pf_ar_t * p_ar,
    pf_cmsu_state_values_t state)
 {
+   LOG_DEBUG (
+      PNET_LOG,
+      "CMSU(%d): New state %s for AREP %u (was %s)\n",
+      __LINE__,
+      pf_cmsu_state_to_string (state),
+      p_ar->arep,
+      pf_cmsu_state_to_string (p_ar->cmsu_state));
+
    p_ar->cmsu_state = state;
 
    return 0;
@@ -60,6 +99,14 @@ int pf_cmsu_cmdev_state_ind (
    pnet_event_values_t event)
 {
    uint32_t crep;
+
+   LOG_DEBUG (
+      PNET_LOG,
+      "CMSU(%d): Received event %s from CMDEV. Our initial state %s for AREP %u.\n",
+      __LINE__,
+      pf_cmdev_event_to_string (event),
+      pf_cmsu_state_to_string (p_ar->cmsu_state),
+      p_ar->arep);
 
    switch (p_ar->cmsu_state)
    {
