@@ -1838,10 +1838,27 @@ static int pf_cmrpc_rm_connect_ind (
          if (pf_ar_find_by_uuid (net, &p_ar->ar_param.ar_uuid, &p_ar_2) != 0)
          {
             /* Valid, unknown AR, NoArSet */
-            p_ar->ar_state = PF_AR_STATE_PRIMARY;
-            p_ar->sync_state = PF_SYNC_STATE_NOT_AVAILABLE;
+            if (p_ar->arep > 1)
+            {
+               LOG_ERROR (
+                  PF_RPC_LOG,
+                  "CMRPC(%d): Only one connection (AR) supported! AREP %u\n",
+                  __LINE__,
+                  p_ar->arep);
+               pf_set_error (
+                  &p_sess->rpc_result,
+                  PNET_ERROR_CODE_CONNECT,
+                  PNET_ERROR_DECODE_PNIO,
+                  PNET_ERROR_CODE_1_CMRPC,
+                  PNET_ERROR_CODE_2_CMRPC_NO_AR_RESOURCES);
+            }
+            else
+            {
+               p_ar->ar_state = PF_AR_STATE_PRIMARY;
+               p_ar->sync_state = PF_SYNC_STATE_NOT_AVAILABLE;
 
-            ret = pf_cmdev_rm_connect_ind (net, p_ar, &p_sess->rpc_result);
+               ret = pf_cmdev_rm_connect_ind (net, p_ar, &p_sess->rpc_result);
+            }
          }
          else
          {
