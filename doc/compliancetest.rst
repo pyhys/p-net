@@ -756,3 +756,10 @@ If the test case "“Different access ways port-to-port" fails,
 verify that your laptop Ethernet interface speed is set to 100 Mbit/s and
 that any Windows or Siemens (TIA portal) LLDP implementation on the
 Ethernet interface is disabled.
+
+If the "Alarm" test case fails with the message "No valid Transport ACK on
+the Alarm ACK was received", then the Ethernet receieve task probably
+has too low priority. Note that when increasing the priority, several
+alarm frames might be queued up before the main application have a chance to
+handle them. As the ART Tester sends a burst of 6 alarm frames in the APMS
+scenario, make sure that your alarm queue can hold at least that number.
