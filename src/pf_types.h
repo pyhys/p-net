@@ -2856,6 +2856,15 @@ struct pnet
       pf_port_iterator_t link_monitor_iterator;
       uint32_t link_monitor_timeout; /* Scheduler timeout instance. */
    } pf_interface;
+
+#if PNET_OPTION_SNMP
+   struct
+   {
+      pf_snmp_system_contact_t system_contact;
+      pf_snmp_system_name_t system_name;
+      pf_snmp_system_location_t system_location;
+   } snmp_data;
+#endif
 };
 
 /**
