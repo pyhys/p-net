@@ -345,6 +345,7 @@ void pf_snmp_fspm_im_location_ind(pnet_t * net)
 
 void pf_snmp_get_system_name (pnet_t * net, pf_snmp_system_name_t * name)
 {
+   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> pf_snmp_get_system_name()\n");
    snprintf (
       name->string,
       sizeof (name->string),
@@ -385,6 +386,7 @@ void pf_snmp_get_system_contact (
    pnet_t * net,
    pf_snmp_system_contact_t * contact)
 {
+   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> pf_snmp_get_system_contact()\n");
    snprintf (
       contact->string,
       sizeof (contact->string),
@@ -421,6 +423,7 @@ void pf_snmp_get_system_location (
    pnet_t * net,
    pf_snmp_system_location_t * location)
 {
+   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> pf_snmp_get_system_location()\n");
    snprintf (
       location->string,
       sizeof (location->string),
