@@ -107,7 +107,6 @@ extern "C" {
 
 #include "pf_lldp.h"
 
-<<<<<<< HEAD
 /* SNMP-related filenames used by p-net stack. A filename may not be longer
  * than PNET_MAX_FILENAME_SIZE (termination included).
  */
@@ -115,8 +114,6 @@ extern "C" {
 #define PF_FILENAME_SNMP_SYSNAME     "pnet_data_sysname.bin"
 #define PF_FILENAME_SNMP_SYSLOCATION "pnet_data_syslocation.bin"
 
-=======
->>>>>>> 200d458... Move relevant LLDP types to pf_lldp.h
 /**
  * System name (sysName).
  *
